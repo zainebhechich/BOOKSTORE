@@ -243,8 +243,17 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
             )}
 
             <p className="text-slate-600 mb-6">
-              {book.description || "No description available."}
+            {book.description?.trim() ? book.description : "No description available."}
             </p>
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              {book.author_name && (
+                <span className="flex items-center gap-1 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm">
+                  <User className="h-4 w-4" />
+                  {book.author_name.join(", ")}
+                </span>
+              )}
+            </div>
 
             <div className="flex flex-wrap gap-2 mb-6">
               {book.first_publish_year && (
@@ -305,17 +314,7 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
                 <div>
                   <h3 className="text-lg font-medium mb-3">About this book</h3>
                   <p className="text-slate-600">
-                    This book was first published in{" "}
-                    {book.first_publish_year || "unknown year"}
-                    {book.language && book.language.length > 0
-                      ? ` in ${book.language
-                          .map((lang) => lang.toUpperCase())
-                          .join(", ")}`
-                      : ""}
-                    .
-                    {book.edition_count
-                      ? ` It has been published in ${book.edition_count} editions.`
-                      : ""}
+                    {book.details || "No details available."}
                   </p>
                 </div>
 
@@ -348,48 +347,18 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
               </TabsContent>
 
               <TabsContent value="editions" className="mt-4">
-                {book.editions && book.editions.docs && book.editions.docs.length > 0 ? (
+                {book.editions && book.editions.length > 0 ? (
                   <div className="space-y-4">
                     <p className="text-sm text-slate-600">
-                      This work has {book.editions.numFound || "multiple"} editions.
+                      This work has {book.editions.length} editions.
                     </p>
                     <div className="grid gap-4">
-                      {book.editions.docs.map((edition, index) => (
+                      {book.editions.map((edition, index) => (
                         <div
                           key={index}
                           className="p-4 border rounded-lg hover:shadow-md transition-shadow"
                         >
-                          <h4 className="font-medium">{edition.title}</h4>
-                          {edition.language && (
-                            <p className="text-sm text-slate-600 mt-1">
-                              Language:{" "}
-                              {edition.language
-                                .map((lang) => lang.toUpperCase())
-                                .join(", ")}
-                            </p>
-                          )}
-                          <div className="flex justify-between items-center mt-2">
-                            <span className="font-medium text-indigo-600">
-                              $
-                              {(
-                                Number.parseFloat(bookPrice) *
-                                (0.9 + Math.random() * 0.2)
-                              ).toFixed(2)}
-                            </span>
-                            {edition.ebook_access && (
-                              <span
-                                className={`inline-block px-3 py-1 rounded-full text-sm ${
-                                  edition.ebook_access === "public"
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-slate-100 text-slate-700"
-                                }`}
-                              >
-                                {edition.ebook_access === "public"
-                                  ? "Available as eBook"
-                                  : edition.ebook_access}
-                              </span>
-                            )}
-                          </div>
+                          <h4 className="font-medium">{edition}</h4>
                         </div>
                       ))}
                     </div>
@@ -456,16 +425,14 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
   );
 }
 
-// ParentComponent.jsx
-
-
-const ExistingParent = () => {
+// filepath: src/components/ParentComponent.jsx
+const ParentComponent = () => {
   const book = {
     title: "The Great Gatsby",
     description: "A novel set in the Jazz Age that explores themes of wealth, love, and the American Dream.",
     author_name: ["F. Scott Fitzgerald"],
     first_publish_year: 1925,
-    language: ["en"]
+    language: ["en"],
   };
 
   return (
@@ -475,5 +442,12 @@ const ExistingParent = () => {
       onAddToCart={(book) => console.log("Book added to cart:", book)}
     />
   );
+};
+
+// filepath: src/api/bookApi.js
+export const fetchBookDetails = async (bookId) => {
+  const response = await fetch(`/api/books/${bookId}`);
+  const data = await response.json();
+  return data; // Ensure description is part of the response
 };
 

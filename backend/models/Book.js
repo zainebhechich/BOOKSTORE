@@ -6,7 +6,8 @@ const bookSchema = new mongoose.Schema({
   category: String,
   description: String,
   price: Number,
-  imageUrl: String
+  imageUrl: String,
+  editions: [String],
 });
 
 module.exports = mongoose.model('Book', bookSchema);
