@@ -8,6 +8,7 @@ const bookSchema = new mongoose.Schema({
   price: Number,
   imageUrl: String,
   editions: [String],
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // User who added the book
 });
 
 module.exports = mongoose.model('Book', bookSchema);

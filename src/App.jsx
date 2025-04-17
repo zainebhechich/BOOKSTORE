@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Categories from "./pages/Categories";
@@ -9,35 +9,43 @@ import NewReleases from "./pages/NewReleases";
 import BestSellers from "./pages/BestSellers";
 import BookDetails from "./components/BookDetails";
 import LoginModal from "./components/LoginModal";
+import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Register from "./components/Register";
 import NotFound from "./pages/NotFound";
 import BookList from "./components/BookList";
-import ParentComponent from "./components/ParentComponent";
+import UserInfo from "./pages/UserInfo";
+import DashboardPage from "./pages/DashboardPage";
+import OrderConfirmationPage from "./components/OrderConfirmationPage";
 
 function App() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [cart, setCart] = useState([]);
-  const [books, setBooks] = useState([]); // State to store books
+  const [books, setBooks] = useState([]);
+  // const [user, setUser] = useState(null);
 
-  function App() {
-    return (
-      <div className="App">
-        <ParentComponent />
-      </div>
-    );
-  }
-
-
-  // Fetch books from the API
   useEffect(() => {
-    fetch("http://localhost:5000/api/books")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data); // Log the fetched books
+    const token = localStorage.getItem("token");
+    if (token) {
+      // setUser(decoded);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch('/books');
+        console.log("Frontend: Response received", response); // Log the raw response
+        const data = await response.json();
+        console.log("Frontend: Parsed data", data);
         setBooks(data);
-      })
-      .catch((error) => console.error("Error fetching books:", error));
+      } catch (error) {
+        console.error("Frontend: Error fetching books:", error);
+        // Handle the error (e.g., set an error state)
+      }
+    };
+
+    fetchBooks();
   }, []);
   
   const handleBookSelect = (book) => {
@@ -54,7 +62,7 @@ function App() {
   };
 
   const handleAddToCart = (book) => {
-    setCart((prevCart) => [...prevCart, book]); // Add book to cart
+    // Add book to cart
   };
 
   return (
@@ -91,6 +99,13 @@ function App() {
             <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
             <Route path="/books" element={<BookList books={books} onBookSelect={(book) => console.log(book)} />} />
+            <Route path="/book/:bookId" element={<BookDetails />} />
+            <Route path="/user-info" element={<UserInfo />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         )}
 

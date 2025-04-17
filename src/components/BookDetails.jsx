@@ -18,18 +18,23 @@ import {
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/Tabs";
 import { motion } from "framer-motion";
+import { useNavigate } from 'react-router-dom';
 
-export default function BookDetails({ book, onBack, onAddToCart }) {
+export default function BookDetails({ book, onBack }) {
   const [activeTab, setActiveTab] = useState("details");
   const [quantity, setQuantity] = useState(1);
-  const [isSaved, setIsSaved] = useState(false); // State to track if the book is saved
+  const [isSaved, setIsSaved] = useState(false);
+  const navigate = useNavigate();
 
   const handleSave = () => {
-    setIsSaved((prev) => !prev); // Toggle the saved state
+    setIsSaved((prev) => !prev);
     console.log(isSaved ? "Book removed from saved list" : "Book saved:", book);
   };
 
-  // Fallback for missing book data
+  const handleAddToCartClick = () => {
+    navigate('/user-info', { state: { book: book } });
+  };
+
   if (!book || Object.keys(book).length === 0) {
     return (
       <div className="p-4 bg-white rounded-lg shadow-md">
@@ -94,97 +99,99 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
   const originalPrice = isOnSale ? (Number.parseFloat(bookPrice) * 1.25).toFixed(2) : null;
 
   return (
-    <div>
-      <button
-        className="mb-6 flex items-center text-slate-600 hover:text-slate-900 transition-colors"
-        onClick={onBack}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to results
-      </button>
+    <div className="container mx-auto mt-8">
+      <div className="max-w-md mx-auto bg-white shadow-md rounded-md overflow-hidden">
+        <button
+          className="mb-6 flex items-center text-slate-600 hover:text-slate-900 transition-colors"
+          onClick={onBack}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to results
+        </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1">
+            <div className="sticky top-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="rounded-xl overflow-hidden shadow-md bg-white border border-slate-200"
+              >
+                <img
+                  src={getBookCover(book) || "/placeholder.svg"}
+                  alt={book.title}
+                  className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    e.target.src = "/abstract-book-cover.png";
+                  }}
+                />
+              </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-1">
-          <div className="sticky top-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="rounded-xl overflow-hidden shadow-md bg-white border border-slate-200"
-            >
-              <img
-                src={getBookCover(book) || "/placeholder.svg"}
-                alt={book.title}
-                className="w-full h-auto object-cover"
-                onError={(e) => {
-                  e.target.src = "/abstract-book-cover.png";
-                }}
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="mt-6 bg-white p-4 rounded-xl border border-slate-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-slate-600">Price:</span>
-                <div className="flex items-center">
-                  {isOnSale && (
-                    <span className="line-through text-slate-400 mr-2">
-                      ${originalPrice}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="mt-6 bg-white p-4 rounded-xl border border-slate-200"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-slate-600">Price:</span>
+                  <div className="flex items-center">
+                    {isOnSale && (
+                      <span className="line-through text-slate-400 mr-2">
+                        ${originalPrice}
+                      </span>
+                    )}
+                    <span className="text-2xl font-bold text-slate-800">
+                      ${bookPrice}
                     </span>
-                  )}
-                  <span className="text-2xl font-bold text-slate-800">
-                    ${bookPrice}
-                  </span>
+                  </div>
                 </div>
-              </div>
 
-              {isOnSale && (
-                <div className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded mb-3 inline-block">
-                  Sale
+                {isOnSale && (
+                  <div className="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded mb-3 inline-block">
+                    Sale
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-slate-600">Quantity:</span>
+                  <div className="flex items-center border border-slate-200 rounded">
+                    <button
+                      className="px-3 py-1 text-slate-600 hover:bg-slate-100"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    >
+                      -
+                    </button>
+                    <span className="px-3 py-1 border-x border-slate-200">
+                      {quantity}
+                    </span>
+                    <button
+                      className="px-3 py-1 text-slate-600 hover:bg-slate-100"
+                      onClick={() => setQuantity(quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-slate-600">Quantity:</span>
-                <div className="flex items-center border border-slate-200 rounded">
+                <div className="text-sm text-slate-600 mb-4">
+                  <div className="flex items-center mb-1">
+                    <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                    <span>In Stock</span>
+                  </div>
+                  <div>Free shipping on orders over $35</div>
+                </div>
+
+                <div className="space-y-2">
                   <button
-                    className="px-3 py-1 text-slate-600 hover:bg-slate-100"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors"
+                    onClick={handleAddToCartClick}
                   >
-                    -
+                    <ShoppingCart className="h-5 w-5" />
+                    <span>Add to Cart</span>
                   </button>
-                  <span className="px-3 py-1 border-x border-slate-200">
-                    {quantity}
-                  </span>
-                  <button
-                    className="px-3 py-1 text-slate-600 hover:bg-slate-100"
-                    onClick={() => setQuantity(quantity + 1)}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="text-sm text-slate-600 mb-4">
-                <div className="flex items-center mb-1">
-                  <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                  <span>In Stock</span>
-                </div>
-                <div>Free shipping on orders over $35</div>
-              </div>
-
-              <div className="space-y-2">
-                <button
-                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors"
-                  onClick={() => onAddToCart({ ...book, quantity })}
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span>Add to Cart</span>
-                </button>
-
+                 </div>
+                  <div className="flex gap-2">
                 <div className="flex gap-2">
                   <button
                     className={`flex-1 flex items-center justify-center gap-2 ${
@@ -201,20 +208,6 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
                 </div>
               </div>
             </motion.div>
-
-            {book.ia && book.ia.length > 0 && (
-              <div className="mt-4">
-                <a
-                  href={`https://archive.org/details/${book.ia[0]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors w-full"
-                >
-                  <Book className="h-5 w-5" />
-                  <span>Read Online</span>
-                </a>
-              </div>
-            )}
           </div>
         </div>
 
@@ -331,17 +324,7 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
                       View on Open Library
                     </a>
 
-                    {book.ia && book.ia.length > 0 && (
-                      <a
-                        href={`https://archive.org/details/${book.ia[0]}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        View on Internet Archive
-                      </a>
-                    )}
+                    
                   </div>
                 </div>
               </TabsContent>
@@ -415,12 +398,19 @@ export default function BookDetails({ book, onBack, onAddToCart }) {
           </motion.div>
         </div>
       </div>
-      <button
-        onClick={() => onAddToCart({ ...book, quantity })}
-        className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-      >
-        Add to Cart
-      </button>
+      {book.ia && book.ia.length > 0 && (
+              <div className="mt-4">
+                <a
+                  href={`https://archive.org/details/${book.ia[0]}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors w-full"
+                >
+                  <Book className="h-5 w-5" />
+                  <span>Read Online</span>
+                </a>
+              </div>
+            )}
     </div>
   );
 }
@@ -439,7 +429,6 @@ const ParentComponent = () => {
     <BookDetails
       book={book}
       onBack={() => console.log("Back to results")}
-      onAddToCart={(book) => console.log("Book added to cart:", book)}
     />
   );
 };
@@ -450,4 +439,5 @@ export const fetchBookDetails = async (bookId) => {
   const data = await response.json();
   return data; // Ensure description is part of the response
 };
+
 

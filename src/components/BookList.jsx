@@ -36,7 +36,7 @@ const BookList = ({ books, onBookSelect }) => {
           console.log("Book ID:", book.id); // Log the book ID
           return (
             <div
-              key={book.id}
+              key={book.title}
               className="p-4 border rounded shadow hover:shadow-lg transition-shadow"
             >
               <h3 className="text-lg font-bold">{book.title}</h3>

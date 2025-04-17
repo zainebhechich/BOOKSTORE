@@ -7,9 +7,9 @@ const router = express.Router();
 
 // Register a new user
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, email, password } = req.body;
 
-  if (!name || !email || !password) {
+  if (!firstName || !email || !password) {
     return res.status(400).json({ message: 'All fields are required' });
   }
 
@@ -19,12 +19,13 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Email already in use' });
     }
 
-    const user = new User({ name, email, password });
+    const user = new User({ firstName, email, password });
     await user.save();
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+    console.log(error); // Log the error for debugging
   }
 });
 
@@ -86,6 +87,7 @@ router.post('/forgot-password', async (req, res) => {
 
     res.status(200).json({ message: 'Password reset email sent' });
   } catch (error) {
+    console.error("Error in /forgot-password:", error); // Log the error
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -114,6 +116,7 @@ router.post('/reset-password/:token', async (req, res) => {
 
     res.status(200).json({ message: 'Password reset successfully' });
   } catch (error) {
+    console.error("Error in /reset-password:", error); // Log the error
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

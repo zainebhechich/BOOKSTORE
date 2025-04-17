@@ -2,9 +2,12 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  firstName: { type: String },
+  lastName: { type: String },
+  email: { type: String, unique: true },
+  password: { type: String },
+  books: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }], // Array of book IDs
+  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], // Add orders array
 });
 
 // Hash the password before saving the user
